@@ -1,0 +1,50 @@
+name: inspector_jack_dos
+description: "A new Flutter project."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.5.3
+
+dependencies:
+  flutter:
+    sdk: flutter
+  tflite_flutter: ^0.11.0
+  image_picker: ^1.1.2
+  image: ^3.3.0
+  logger: ^2.4.0
+  hive_flutter: ^1.1.0
+  animated_notch_bottom_bar: ^1.0.3
+  cupertino_icons: ^1.0.8
+  flutter_launcher_icons: ^0.9.2
+  #tflite_flutter_helper: ^0.3.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/icons/doctorlogo.png" # Your custom logo path
+
+flutter:
+  uses-material-design: true
+  
+
+  assets:
+    - assets/tmjackfruit.tflite
+    - assets/labels.txt
+    - assets/bigcam.png
+    - assets/minicamera.png
+    - assets/miniupload.png
+    - assets/icons/doctor.png
+    - assets/icons/doctorlogo.png
+    - assets/icons/hand.png
+    - assets/icons/leaf.png
+    - assets/icons/phone.png
+    - assets/icons/historyicon.png
+    - assets/icons/homeicon.png
+    - assets/icons/feedbackicon.png
+    - assets/icons/logo.png 
