@@ -218,6 +218,10 @@ class _MainScreenState extends State<MainScreen>
 
   @override
   Widget build(BuildContext context) {
+    // Use MediaQuery for screen dimensions
+    double screenHeight = MediaQuery.of(context).size.height;
+    double screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
       body: Stack(
         children: [
@@ -238,7 +242,7 @@ class _MainScreenState extends State<MainScreen>
               physics: const NeverScrollableScrollPhysics(),
               children: [
                 HistoryPage(history: _history),
-                _buildMainPage(),
+                _buildMainPage(screenWidth, screenHeight),
                 const FeedbackPage(),
               ],
             ),
@@ -249,13 +253,14 @@ class _MainScreenState extends State<MainScreen>
             right: 0,
             child: AnimatedNotchBottomBar(
               notchBottomBarController: _controller,
-              color: Colors.white, // White nav bar
+              color: const Color.fromARGB(255, 212, 211, 211), // White nav bar
               showLabel: true,
               textOverflow: TextOverflow.visible,
               maxLine: 1,
               shadowElevation: 10, // Shadow elevation for lift effect
               kBottomRadius: 28.0,
-              notchColor: Colors.white, // Same color as the nav bar
+              notchColor: const Color.fromARGB(
+                  255, 36, 39, 36), // Same color as the nav bar
               removeMargins: true, // Removes extra padding
               bottomBarWidth: 500,
               showShadow: true,
@@ -264,18 +269,20 @@ class _MainScreenState extends State<MainScreen>
               elevation: 10, // Elevation value
               bottomBarItems: const [
                 BottomBarItem(
-                  inActiveItem: Icon(Icons.history, color: Colors.blueGrey),
+                  inActiveItem:
+                      Icon(Icons.history, color: Color.fromARGB(255, 0, 0, 0)),
                   activeItem: Icon(Icons.history,
                       color: Color.fromARGB(255, 230, 169, 0)),
                 ),
                 BottomBarItem(
-                  inActiveItem:
-                      Icon(Icons.qr_code_scanner, color: Colors.blueGrey),
+                  inActiveItem: Icon(Icons.qr_code_scanner,
+                      color: Color.fromARGB(255, 0, 0, 0)),
                   activeItem: Icon(Icons.qr_code_scanner,
                       color: Color.fromARGB(255, 230, 169, 0)),
                 ),
                 BottomBarItem(
-                  inActiveItem: Icon(Icons.feedback, color: Colors.blueGrey),
+                  inActiveItem:
+                      Icon(Icons.feedback, color: Color.fromARGB(255, 0, 0, 0)),
                   activeItem: Icon(Icons.feedback,
                       color: Color.fromARGB(255, 230, 169, 0)),
                 ),
@@ -289,7 +296,7 @@ class _MainScreenState extends State<MainScreen>
     );
   }
 
-  Widget _buildMainPage() {
+  Widget _buildMainPage(double screenWidth, double screenHeight) {
     return SafeArea(
       child: Column(
         children: [
@@ -312,8 +319,12 @@ class _MainScreenState extends State<MainScreen>
                   Stack(
                     children: [
                       Container(
-                        width: 350,
-                        height: 300,
+                        width: screenWidth * 0.9, // 90% of screen width
+                        height: _selectedImage != null
+                            ? screenHeight *
+                                0.5 // Increase height when image is present
+                            : screenHeight *
+                                0.35, // Default height when no image
                         decoration: BoxDecoration(
                           color: const Color(0xFFD9D9D9).withOpacity(0.3),
                           borderRadius: BorderRadius.circular(32),
@@ -345,7 +356,7 @@ class _MainScreenState extends State<MainScreen>
                                   Text(
                                     'Press the buttons below to add a picture',
                                     style: TextStyle(
-                                      fontSize: 14,
+                                      fontSize: screenWidth * 0.035,
                                       color: Colors.black.withOpacity(0.6),
                                     ),
                                     textAlign: TextAlign.center,
@@ -368,9 +379,9 @@ class _MainScreenState extends State<MainScreen>
                         ),
                     ],
                   ),
-                  const SizedBox(height: 15),
+                  const SizedBox(height: 10), // Reduced space
                   Container(
-                    width: 380,
+                    width: screenWidth * 0.95, // 95% of screen width
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
                       color: const Color.fromARGB(255, 215, 224, 210),
@@ -431,47 +442,52 @@ class _MainScreenState extends State<MainScreen>
                             ],
                           ),
                         ),
-                        const SizedBox(height: 15),
-                        ElevatedButton.icon(
-                          onPressed: () => _pickImage(ImageSource.camera),
-                          icon: Image.asset('assets/minicamera.png', width: 30),
-                          label: const Text('Start Camera'),
-                          style: ElevatedButton.styleFrom(
-                            minimumSize: const Size(200, 50),
-                            backgroundColor:
-                                const Color.fromARGB(255, 215, 224, 210),
-                            elevation: 5,
-                            shadowColor: Colors.black.withOpacity(0.1),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              side: const BorderSide(
-                                color: Color(0xFF388E3C),
-                                width: 1,
+                        const SizedBox(height: 10), // Reduced space
+                        if (_selectedImage == null) ...[
+                          ElevatedButton.icon(
+                            onPressed: () => _pickImage(ImageSource.camera),
+                            icon:
+                                Image.asset('assets/minicamera.png', width: 30),
+                            label: const Text('Start Camera'),
+                            style: ElevatedButton.styleFrom(
+                              minimumSize:
+                                  Size(screenWidth * 0.7, 50), // Adjusted width
+                              backgroundColor:
+                                  const Color.fromARGB(255, 215, 224, 210),
+                              elevation: 5,
+                              shadowColor: Colors.black.withOpacity(0.1),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                side: const BorderSide(
+                                  color: Color(0xFF388E3C),
+                                  width: 1,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 10),
-                        ElevatedButton.icon(
-                          onPressed: () => _pickImage(ImageSource.gallery),
-                          icon: Image.asset('assets/miniupload.png'),
-                          label: const Text('Upload Picture'),
-                          style: ElevatedButton.styleFrom(
-                            minimumSize: const Size(200, 50),
-                            backgroundColor:
-                                const Color.fromARGB(255, 215, 224, 210),
-                            elevation: 5,
-                            shadowColor: Colors.black.withOpacity(0.1),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              side: const BorderSide(
-                                color: Color(0xFF388E3C),
-                                width: 1,
+                          const SizedBox(height: 10),
+                          ElevatedButton.icon(
+                            onPressed: () => _pickImage(ImageSource.gallery),
+                            icon: Image.asset('assets/miniupload.png'),
+                            label: const Text('Upload Picture'),
+                            style: ElevatedButton.styleFrom(
+                              minimumSize:
+                                  Size(screenWidth * 0.7, 50), // Adjusted width
+                              backgroundColor:
+                                  const Color.fromARGB(255, 215, 224, 210),
+                              elevation: 5,
+                              shadowColor: Colors.black.withOpacity(0.1),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                side: const BorderSide(
+                                  color: Color(0xFF388E3C),
+                                  width: 1,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 20),
+                        ],
+                        const SizedBox(height: 6), // Reduced space
                         ElevatedButton(
                           onPressed: _selectedImage == null
                               ? null
@@ -479,7 +495,8 @@ class _MainScreenState extends State<MainScreen>
                                   ? _showRecommendation
                                   : _classifyImage,
                           style: ElevatedButton.styleFrom(
-                            fixedSize: const Size(240, 55),
+                            fixedSize:
+                                Size(screenWidth * 0.8, 50), // Adjusted width
                             backgroundColor: const Color(0xFF388E3C),
                             textStyle: const TextStyle(
                               color: Colors.white,

@@ -231,7 +231,10 @@ class _TreatmentPageState extends State<TreatmentPage> {
           const SizedBox(height: 10),
           Text(
             content,
-            style: const TextStyle(fontSize: 16),
+            style: const TextStyle(
+              fontSize: 16,
+              color: Color.fromARGB(255, 45, 44, 44),
+            ),
           ),
         ],
       ),

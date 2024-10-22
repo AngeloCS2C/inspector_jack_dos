@@ -41,6 +41,9 @@ class HistoryPageState extends State<HistoryPage> {
     // Logic for Clear History button opacity
     double clearHistoryOpacity = widget.history.isEmpty ? 0.5 : 1.0;
 
+    // Get screen size for responsiveness
+    double screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       body: Stack(
         children: [
@@ -71,8 +74,7 @@ class HistoryPageState extends State<HistoryPage> {
 
                   // Mother box holding the history list and the Clear History button
                   Container(
-                    height:
-                        600, // Adjust this value to reduce or increase height
+                    height: screenHeight * 0.6, // Adjusted for responsiveness
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: const Color.fromARGB(255, 56, 142, 60),
@@ -133,10 +135,11 @@ class HistoryPageState extends State<HistoryPage> {
                                             padding: const EdgeInsets.symmetric(
                                                 vertical: 8),
                                             child: Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      vertical: 12,
-                                                      horizontal: 16),
+                                              padding: const EdgeInsets
+                                                  .symmetric(
+                                                  vertical: 12,
+                                                  horizontal:
+                                                      20), // Added left & right padding
                                               decoration: BoxDecoration(
                                                 color: Colors.white,
                                                 borderRadius:

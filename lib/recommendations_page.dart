@@ -255,7 +255,10 @@ class RecommendationsPageState extends State<RecommendationsPage> {
         const SizedBox(height: 8),
         Text(
           content,
-          style: const TextStyle(fontSize: 16),
+          style: const TextStyle(
+            fontSize: 16,
+            color: Color.fromARGB(255, 45, 44, 44),
+          ),
         ),
       ],
     );
