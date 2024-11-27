@@ -23,6 +23,6 @@ Navigation Bar:
 The navigation bar includes:
 Main Screen
 History Page
-Feedback Page (currently not fully functional; an issue with the keyboard pushing the navigation bar when shown is still unresolved).
+Feedback Page (currently not fully functional; will update soon).
 Notes on This Version:
-This version ignores R8 optimizations due to dependency compatibility issues. As a result, the app is functional but not ready for uploading to the Play Store at this time.
+This version ignores R8 optimizations due to dependency compatibility issues. As a result, the app is functional but not ready for deployemnt to the Play Store at this time. 
