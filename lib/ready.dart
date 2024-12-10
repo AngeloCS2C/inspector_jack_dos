@@ -11,8 +11,8 @@ class ReadyToBeginScreen extends StatelessWidget {
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Color(0xFFA8E063), // Top color
-              Color(0xFF56AB2F), // Bottom color
+              Color.fromARGB(255, 255, 255, 255), // Top color
+              Color.fromARGB(255, 254, 254, 254), // Bottom color
             ],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -83,7 +83,7 @@ class ReadyToBeginScreen extends StatelessWidget {
                     'Tap "Get Started" to explore Inspector Jack\n and keep your jackfruit trees thriving.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: Colors.white70,
+                      color: Color.fromARGB(179, 0, 0, 0),
                       fontSize: 20,
                       shadows: [
                         Shadow(
@@ -154,7 +154,7 @@ class ReadyToBeginScreen extends StatelessWidget {
       height: 10,
       width: 10,
       decoration: BoxDecoration(
-        color: isActive ? Colors.black : Colors.white,
+        color: isActive ? Colors.black : Colors.green,
         shape: BoxShape.circle,
       ),
     );

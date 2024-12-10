@@ -47,4 +47,6 @@ flutter:
     - assets/icons/historyicon.png
     - assets/icons/homeicon.png
     - assets/icons/feedbackicon.png
-    - assets/icons/logo.png 
+    - assets/icons/logo.png
+    - assets/objectDetector/labels.txt
+    - assets/objectDetector/jackfruitleaf.tflite

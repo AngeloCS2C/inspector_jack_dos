@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'recommendation_data.dart';
+import 'main_screen.dart'; // Import MainScreen for navigation
 
 class TreatmentPage extends StatefulWidget {
   final Recommendation recommendation;
@@ -51,7 +52,7 @@ class _TreatmentPageState extends State<TreatmentPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Treatment and Remedies'),
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.yellow, // App bar color changed to yellow
         elevation: 4, // Adds a subtle shadow to the app bar
         shadowColor: Colors.grey.withOpacity(0.5),
       ),
@@ -103,6 +104,31 @@ class _TreatmentPageState extends State<TreatmentPage> {
                                   title: 'Chemical Treatments',
                                   content: chemicalTreatments,
                                 ),
+                                const SizedBox(
+                                    height: 16), // Space before the button
+                                // Adjusted Open Source Link button
+                                Center(
+                                  child: ElevatedButton.icon(
+                                    onPressed: () {
+                                      // Placeholder for open source link function
+                                    },
+                                    icon: const Icon(Icons.link, size: 18),
+                                    label: const Text(
+                                      'Open Source Link',
+                                      style: TextStyle(
+                                        fontSize: 12, // Adjust font size
+                                      ),
+                                    ),
+                                    style: ElevatedButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 16, vertical: 12),
+                                      backgroundColor: Colors.white,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                    ),
+                                  ),
+                                ),
                               ],
                             ),
                     ),
@@ -110,46 +136,55 @@ class _TreatmentPageState extends State<TreatmentPage> {
                 ),
                 const SizedBox(height: 16),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     // Switch Language Button with customized font size
-                    ElevatedButton.icon(
-                      onPressed: _switchLanguage,
-                      icon: const Icon(Icons.language),
-                      label: Text(
-                        'Switch: ${currentLanguage == 'en' ? 'Tagalog' : currentLanguage == 'tl' ? 'Cebuano' : 'English'}',
-                        style: const TextStyle(
-                          fontSize: 12, // Adjust font size
+                    SizedBox(
+                      width: 140, // Fixed width for consistency
+                      child: ElevatedButton.icon(
+                        onPressed: _switchLanguage,
+                        icon: const Icon(Icons.language),
+                        label: Text(
+                          'Switch: ${currentLanguage == 'en' ? 'Tagalog' : currentLanguage == 'tl' ? 'Cebuano' : 'English'}',
+                          style: const TextStyle(
+                            fontSize: 12, // Adjust font size
+                          ),
                         ),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: const Size(140, 50),
-                        backgroundColor:
-                            const Color.fromARGB(255, 255, 255, 255),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
                         ),
                       ),
                     ),
                     const SizedBox(width: 10), // Space between buttons
-                    // Open Source Link Button with customized font size
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        // Placeholder for open source link function
-                      },
-                      icon: const Icon(Icons.link, size: 18),
-                      label: const Text(
-                        'Open Source Link',
-                        style: TextStyle(
-                          fontSize: 12, // Adjust font size
+                    // Return to Home Button
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          // Navigate back to MainScreen
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const MainScreen()),
+                            (Route<dynamic> route) => false,
+                          );
+                        },
+                        icon: const Icon(Icons.home,
+                            size: 18, color: Colors.black),
+                        label: const Text(
+                          'Return to Home',
+                          style: TextStyle(
+                            fontSize: 12, // Adjust font size
+                            color: Colors.black,
+                          ),
                         ),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: const Size(140, 50),
-                        backgroundColor:
-                            const Color.fromARGB(255, 255, 255, 255),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors
+                              .yellow, // Button background color set to yellow
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
                         ),
                       ),
                     ),
@@ -168,8 +203,7 @@ class _TreatmentPageState extends State<TreatmentPage> {
       padding: const EdgeInsets.all(16),
       width: double.infinity,
       decoration: BoxDecoration(
-        color:
-            const Color.fromARGB(255, 56, 142, 60), // Updated mother box color
+        color: Colors.black, // Mother box color changed to black
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -188,7 +222,7 @@ class _TreatmentPageState extends State<TreatmentPage> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Colors.white, // Boxes color changed back to white
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -207,7 +241,7 @@ class _TreatmentPageState extends State<TreatmentPage> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Colors.white, // Boxes color changed back to white
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -233,7 +267,7 @@ class _TreatmentPageState extends State<TreatmentPage> {
             content,
             style: const TextStyle(
               fontSize: 16,
-              color: Color.fromARGB(255, 45, 44, 44),
+              color: Colors.black,
             ),
           ),
         ],
@@ -245,7 +279,7 @@ class _TreatmentPageState extends State<TreatmentPage> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.greenAccent.withOpacity(0.2),
+        color: Colors.white, // Changed back to white for consistency
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -258,7 +292,8 @@ class _TreatmentPageState extends State<TreatmentPage> {
       ),
       child: const Text(
         'Your leaf is healthy. No treatments are needed at this time. Continue monitoring to keep it in good health.',
-        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        style: TextStyle(
+            fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
       ),
     );
   }

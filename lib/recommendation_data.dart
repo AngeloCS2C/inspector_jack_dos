@@ -88,20 +88,19 @@ final List<Recommendation> recommendations = [
           'Ensure proper plant spacing, avoid wet leaves, and regularly clean the area.',
       mechanicalEn:
           'Prune infected areas using sanitized tools to prevent spread.',
-      chemicalEn:
-          'Apply copper-based fungicides to manage the disease effectively.',
+      chemicalEn: 'No chemical treatment required for algal leaf spot.',
       culturalTl:
           'Siguraduhin ang tamang espasyo ng mga halaman, iwasang mabasa ang mga dahon, at linisin ang paligid.',
       mechanicalTl:
           'Pagputol sa mga apektadong bahagi gamit ang sanitized na mga kagamitan para maiwasan ang pagkalat.',
       chemicalTl:
-          'Gumamit ng copper-based na fungicides para sa epektibong pamamahala sa sakit.',
+          'hindi na kailangan ng kemikalang pagtigil sa Algal leaf spot.',
       culturalCb:
           'Siguraduhon ang sakto nga gilay-on sa mga tanum, likayi ang basang mga dahon, ug limpyoha ang palibot.',
       mechanicalCb:
           'Pagputol sa mga apektadong bahin gamit ang sanitized nga mga gamit aron malikayan ang pagkaylap.',
       chemicalCb:
-          'Gamit ug copper-based nga fungicides para sa epektibong pagpugong sa sakit.',
+          'Di na kinahanglan ug kemikal sa pagtambal sa algal leaf spot.',
     ),
   ),
   Recommendation(

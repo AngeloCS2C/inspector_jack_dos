@@ -13,8 +13,8 @@ class LeafDiagnosisScreen extends StatelessWidget {
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Color(0xFFA8E063), // Top color
-              Color(0xFF56AB2F), // Bottom color
+              Color.fromARGB(255, 255, 255, 255), // Top color
+              Color.fromARGB(255, 255, 255, 255), // Bottom color
             ],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -65,7 +65,7 @@ class LeafDiagnosisScreen extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 40,
                             fontWeight: FontWeight.normal,
-                            color: Colors.white,
+                            color: Color.fromARGB(255, 0, 0, 0),
                             shadows: [
                               Shadow(
                                 color: Colors.black26,
@@ -98,7 +98,7 @@ class LeafDiagnosisScreen extends StatelessWidget {
                     'View detailed insights tailored to your\njackfruit tree\'s health.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: Colors.white70,
+                      color: Color.fromARGB(179, 0, 0, 0),
                       fontSize: 20,
                       shadows: [
                         Shadow(
@@ -196,7 +196,7 @@ class LeafDiagnosisScreen extends StatelessWidget {
       height: 10,
       width: 10,
       decoration: BoxDecoration(
-        color: isActive ? Colors.black : Colors.white,
+        color: isActive ? Colors.black : Colors.green,
         shape: BoxShape.circle,
       ),
     );

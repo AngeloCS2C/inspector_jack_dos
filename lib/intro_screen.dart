@@ -12,8 +12,8 @@ class IntroScreen extends StatelessWidget {
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Color(0xFFA8E063), // Top color
-              Color(0xFF56AB2F), // Bottom color
+              Color.fromARGB(255, 255, 255, 255), // Top color
+              Color.fromARGB(255, 252, 252, 252), // Bottom color
             ],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -64,15 +64,15 @@ class IntroScreen extends StatelessWidget {
                     Transform.rotate(
                       angle: 6.84 * (pi / 180), // Rotated image
                       child: SizedBox(
-                        width: 370,
-                        height: 380,
+                        width: 300,
+                        height: 300,
                         child: Image.asset(
                           'assets/icons/hand.png',
                           fit: BoxFit.contain,
                         ),
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 15),
                     RichText(
                       textAlign: TextAlign.center,
                       text: TextSpan(
@@ -82,7 +82,7 @@ class IntroScreen extends StatelessWidget {
                             style: TextStyle(
                               fontFamily: 'KronaOne',
                               fontSize: 40,
-                              color: Colors.white,
+                              color: const Color.fromARGB(255, 2, 2, 2),
                               shadows: [
                                 Shadow(
                                   color: Colors.black.withOpacity(0.25),
@@ -98,10 +98,10 @@ class IntroScreen extends StatelessWidget {
                               fontFamily: 'KronaOne',
                               fontSize: 40,
                               fontWeight: FontWeight.bold,
-                              color: const Color(0xFFF97300),
+                              color: const Color.fromARGB(255, 4, 103, 6),
                               shadows: [
                                 Shadow(
-                                  color: Colors.black.withOpacity(0.25),
+                                  color: Colors.black.withOpacity(0.1),
                                   offset: const Offset(0, 4),
                                   blurRadius: 4,
                                 ),
@@ -111,16 +111,16 @@ class IntroScreen extends StatelessWidget {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 10),
                     Text(
                       'Your essential tool for jackfruit health.\nSimplifying disease detection, one leaf at a time.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: Colors.white70,
+                        color: const Color.fromARGB(179, 0, 0, 0),
                         fontSize: 20,
                         shadows: [
                           Shadow(
-                            color: Colors.black.withOpacity(0.25),
+                            color: Colors.black.withOpacity(0.2),
                             offset: const Offset(0, 4),
                             blurRadius: 4,
                           ),

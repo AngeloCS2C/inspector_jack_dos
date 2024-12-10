@@ -51,7 +51,8 @@ class RecommendationsPageState extends State<RecommendationsPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Recommendations'),
-        backgroundColor: Colors.white,
+        backgroundColor: const Color.fromARGB(
+            255, 56, 142, 60), // Header color changed to green
         elevation: 4, // Drop shadow
         shadowColor: Colors.grey.withOpacity(0.5),
       ),
@@ -84,7 +85,7 @@ class RecommendationsPageState extends State<RecommendationsPage> {
                     _buildResultBox(
                       child: Center(
                         child: Text(
-                          'Result: ${widget.recommendation.name}',
+                          widget.recommendation.name, // Removed 'Result:'
                           style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -122,49 +123,57 @@ class RecommendationsPageState extends State<RecommendationsPage> {
 
                     // Buttons at the bottom inside the Mother Box
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        ElevatedButton.icon(
-                          onPressed: _switchLanguage,
-                          icon: const Icon(Icons.language),
-                          label: Text(
-                            'Switch: ${currentLanguage == 'en' ? 'Tagalog' : currentLanguage == 'tl' ? 'Cebuano' : 'English'}',
-                            style: const TextStyle(fontSize: 12),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            minimumSize: const Size(140, 50),
-                            backgroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
+                        SizedBox(
+                          width: 140, // Fixed width for Switch button
+                          child: ElevatedButton.icon(
+                            onPressed: _switchLanguage,
+                            icon: const Icon(Icons.language),
+                            label: Text(
+                              'Switch: ${currentLanguage == 'en' ? 'Tagalog' : currentLanguage == 'tl' ? 'Cebuano' : 'English'}',
+                              style: const TextStyle(fontSize: 12),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
                             ),
                           ),
                         ),
-                        ElevatedButton.icon(
-                          onPressed: () {
-                            if (widget.recommendation.name !=
-                                'Healthy Leaf of Jackfruit') {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => TreatmentPage(
-                                    recommendation: widget.recommendation,
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              if (widget.recommendation.name !=
+                                  'Healthy Leaf of Jackfruit') {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => TreatmentPage(
+                                      recommendation: widget.recommendation,
+                                    ),
                                   ),
-                                ),
-                              );
-                            } else {
-                              _showHealthyMessage(context);
-                            }
-                          },
-                          icon: const Icon(Icons.medical_services, size: 18),
-                          label: const Text(
-                            'Check Treatment',
-                            style: TextStyle(fontSize: 12),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            minimumSize: const Size(140, 50),
-                            backgroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
+                                );
+                              } else {
+                                _showHealthyMessage(context);
+                              }
+                            },
+                            icon: const Icon(Icons.medical_services,
+                                size: 18, color: Colors.white),
+                            label: const Text(
+                              'Check Treatment',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.white, // Text color set to white
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color.fromARGB(
+                                  255, 56, 142, 60), // Green color
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
                             ),
                           ),
                         ),
@@ -180,12 +189,12 @@ class RecommendationsPageState extends State<RecommendationsPage> {
     );
   }
 
-  // Mother Box that holds all content with the requested color and layout
+  // Mother Box that holds all content
   Widget _buildMotherBox({required Widget child}) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color.fromARGB(255, 56, 142, 60), // Green Mother Box
+        color: Colors.black, // Mother box color changed to black
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -205,7 +214,7 @@ class RecommendationsPageState extends State<RecommendationsPage> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Colors.yellow, // Result box color changed to yellow
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -220,12 +229,12 @@ class RecommendationsPageState extends State<RecommendationsPage> {
     );
   }
 
-  // Box that holds individual content sections like image, description, etc.
+  // Box that holds individual content sections
   Widget _buildBox({required Widget child}) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Colors.white, // Keep as white
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -264,7 +273,7 @@ class RecommendationsPageState extends State<RecommendationsPage> {
     );
   }
 
-  // Healthy message pop-up for Healthy Leaf of Jackfruit
+  // Healthy message pop-up
   void _showHealthyMessage(BuildContext context) {
     showDialog(
       context: context,

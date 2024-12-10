@@ -1,14 +1,15 @@
+// main_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
-import 'package:tflite_flutter/tflite_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-import 'package:image/image.dart' as img;
 import 'package:logger/logger.dart';
 import 'recommendations_page.dart';
 import 'recommendation_data.dart';
 import 'history_page.dart';
 import 'feedback_page.dart';
+import 'ml_service.dart'; // Import the MLService
 
 final logger = Logger();
 
@@ -21,17 +22,15 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen>
     with SingleTickerProviderStateMixin {
-  late Interpreter _interpreter;
-  final List<String> _labels = [
-    'Algal Leaf Spot of Jackfruit',
-    'Black Spot of Jackfruit',
-    'Healthy Leaf of Jackfruit',
-  ];
+  final MLService _mlService = MLService(); // Instantiate MLService
   File? _selectedImage;
   final picker = ImagePicker();
   List<Map<String, dynamic>> _results = [];
   bool _classified = false;
   bool _showRecommendationsButton = false;
+  bool _modelsLoaded = false; // Flag to indicate if models are loaded
+  bool _isLoadingModels = true; // Flag for loading indicator
+  Map<String, dynamic>? _bestResult; // State variable for best result
 
   // History Data
   final List<Map<String, dynamic>> _history = [];
@@ -44,7 +43,7 @@ class _MainScreenState extends State<MainScreen>
   @override
   void initState() {
     super.initState();
-    _loadModel();
+    _loadModels();
 
     _circleAnimationController = AnimationController(
       duration: const Duration(milliseconds: 400),
@@ -54,22 +53,32 @@ class _MainScreenState extends State<MainScreen>
     _circleAnimationController.forward();
   }
 
-  Future<void> _loadModel() async {
-    try {
-      _interpreter = await Interpreter.fromAsset('assets/tmjackfruit.tflite');
-      logger.i('Model loaded successfully');
-    } catch (e) {
-      logger.e('Error loading model: $e');
-    }
+  Future<void> _loadModels() async {
+    setState(() {
+      _isLoadingModels = true;
+    });
+
+    await _mlService.loadModels();
+
+    setState(() {
+      _modelsLoaded = _mlService.modelsLoaded;
+      _isLoadingModels = false;
+    });
   }
 
   Future<void> _pickImage(ImageSource source) async {
+    if (!_modelsLoaded) {
+      _showLoadingModelsDialog();
+      return;
+    }
+
     final pickedFile = await picker.pickImage(source: source);
     setState(() {
       _selectedImage = pickedFile != null ? File(pickedFile.path) : null;
       _results.clear();
       _classified = false;
       _showRecommendationsButton = false;
+      _bestResult = null;
     });
   }
 
@@ -78,68 +87,82 @@ class _MainScreenState extends State<MainScreen>
       _selectedImage = null;
       _classified = false;
       _showRecommendationsButton = false;
+      _bestResult = null;
     });
   }
 
   Future<void> _classifyImage() async {
+    if (!_modelsLoaded) {
+      _showLoadingModelsDialog();
+      return;
+    }
+
     if (_selectedImage == null) return;
 
     try {
-      final img.Image image =
-          img.decodeImage(await _selectedImage!.readAsBytes())!;
-      final img.Image resizedImage =
-          img.copyResize(image, width: 224, height: 224);
+      bool isJackfruitLeaf = await _mlService.detectLeaf(_selectedImage!);
+      logger.d('Is Jackfruit Leaf: $isJackfruitLeaf');
 
-      final List<List<List<List<double>>>> input = List.generate(
-        1,
-        (i) => List.generate(
-            224, (j) => List.generate(224, (k) => [0.0, 0.0, 0.0])),
-      );
-
-      for (int y = 0; y < resizedImage.height; y++) {
-        for (int x = 0; x < resizedImage.width; x++) {
-          final pixel = resizedImage.getPixel(x, y);
-          input[0][y][x][0] = img.getRed(pixel) / 255.0;
-          input[0][y][x][1] = img.getGreen(pixel) / 255.0;
-          input[0][y][x][2] = img.getBlue(pixel) / 255.0;
-        }
+      if (!isJackfruitLeaf) {
+        _showNotJackfruitLeafDialog();
+        return;
       }
 
-      final List<List<double>> output =
-          List.generate(1, (_) => List.filled(3, 0.0));
+      List<Map<String, dynamic>> results =
+          await _mlService.classifyImage(_selectedImage!);
 
-      _interpreter.run(input, output);
-
-      List<Map<String, dynamic>> results = [];
-      for (int i = 0; i < output[0].length; i++) {
-        results.add({
-          'label': _labels[i],
-          'accuracy': output[0][i],
-        });
+      if (results.isEmpty) {
+        // Handle error in classification
+        logger.e('Classification results are empty.');
+        return;
       }
+
+      final bestResult = results.reduce(
+          (curr, next) => curr['accuracy'] > next['accuracy'] ? curr : next);
 
       setState(() {
         _results = results;
         _classified = true;
         _showRecommendationsButton = true;
+        _bestResult = bestResult; // Store best result
 
         // Store result and date in history
-        final bestResult = _results.reduce(
-            (curr, next) => curr['accuracy'] > next['accuracy'] ? curr : next);
         _history.add({
           'result': bestResult['label'],
           'date': DateTime.now().toString().substring(0, 10),
         });
       });
 
-      final bestResult = _results.reduce(
-          (curr, next) => curr['accuracy'] > next['accuracy'] ? curr : next);
       if (bestResult['label'] == 'Healthy Leaf of Jackfruit') {
         _showHealthyLeafDialog();
       }
     } catch (e) {
-      logger.e('Error classifying image: $e');
+      logger.e('Error during classification: $e');
+      _showErrorDialog(
+          'An error occurred during classification. Please try again.');
     }
+  }
+
+  void _showNotJackfruitLeafDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Not a Jackfruit Leaf'),
+          content: const Text(
+              'The image does not appear to be a jackfruit leaf. Please capture an image of a jackfruit leaf.'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _deleteImage();
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _showHealthyLeafDialog() {
@@ -153,6 +176,48 @@ class _MainScreenState extends State<MainScreen>
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
+                _deleteImage();
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showLoadingModelsDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Loading Models'),
+          content: const Text('Please wait while the models are loading...'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Error'),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _deleteImage();
               },
               child: const Text('OK'),
             ),
@@ -163,11 +228,10 @@ class _MainScreenState extends State<MainScreen>
   }
 
   void _showRecommendation() {
-    final bestResult = _results.reduce(
-        (curr, next) => curr['accuracy'] > next['accuracy'] ? curr : next);
+    final bestResult = _bestResult;
 
     final recommendation = recommendations.firstWhere(
-      (rec) => rec.name == bestResult['label'],
+      (rec) => rec.name == bestResult?['label'],
       orElse: () => Recommendation(
         name: 'Unknown',
         descriptionEn: 'No recommendations available.',
@@ -203,7 +267,7 @@ class _MainScreenState extends State<MainScreen>
 
   @override
   void dispose() {
-    _interpreter.close();
+    _mlService.dispose();
     _circleAnimationController.dispose();
     _pageController.dispose();
     super.dispose();
@@ -230,22 +294,36 @@ class _MainScreenState extends State<MainScreen>
             decoration: const BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  Color(0xFFA8E063), // Top color
-                  Color(0xFF56AB2F), // Bottom color
+                  Color.fromARGB(255, 255, 255, 255), // Top color
+                  Color.fromARGB(255, 255, 255, 255), // Bottom color
                 ],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
               ),
             ),
-            child: PageView(
-              controller: _pageController,
-              physics: const NeverScrollableScrollPhysics(),
-              children: [
-                HistoryPage(history: _history),
-                _buildMainPage(screenWidth, screenHeight),
-                const FeedbackPage(),
-              ],
-            ),
+            child: _isLoadingModels
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        CircularProgressIndicator(),
+                        SizedBox(height: 20),
+                        Text(
+                          'Loading models, please wait...',
+                          style: TextStyle(color: Colors.black, fontSize: 16),
+                        ),
+                      ],
+                    ),
+                  )
+                : PageView(
+                    controller: _pageController,
+                    physics: const NeverScrollableScrollPhysics(),
+                    children: [
+                      HistoryPage(history: _history),
+                      _buildMainPage(screenWidth, screenHeight),
+                      const FeedbackPage(),
+                    ],
+                  ),
           ),
           Positioned(
             bottom: 0,
@@ -253,7 +331,7 @@ class _MainScreenState extends State<MainScreen>
             right: 0,
             child: AnimatedNotchBottomBar(
               notchBottomBarController: _controller,
-              color: const Color.fromARGB(255, 212, 211, 211), // White nav bar
+              color: const Color.fromARGB(255, 255, 255, 255), // White nav bar
               showLabel: true,
               textOverflow: TextOverflow.visible,
               maxLine: 1,
@@ -269,20 +347,18 @@ class _MainScreenState extends State<MainScreen>
               elevation: 10, // Elevation value
               bottomBarItems: const [
                 BottomBarItem(
-                  inActiveItem:
-                      Icon(Icons.history, color: Color.fromARGB(255, 0, 0, 0)),
+                  inActiveItem: Icon(Icons.history, color: Colors.black),
                   activeItem: Icon(Icons.history,
                       color: Color.fromARGB(255, 230, 169, 0)),
                 ),
                 BottomBarItem(
-                  inActiveItem: Icon(Icons.qr_code_scanner,
-                      color: Color.fromARGB(255, 0, 0, 0)),
+                  inActiveItem:
+                      Icon(Icons.qr_code_scanner, color: Colors.black),
                   activeItem: Icon(Icons.qr_code_scanner,
                       color: Color.fromARGB(255, 230, 169, 0)),
                 ),
                 BottomBarItem(
-                  inActiveItem:
-                      Icon(Icons.feedback, color: Color.fromARGB(255, 0, 0, 0)),
+                  inActiveItem: Icon(Icons.feedback, color: Colors.black),
                   activeItem: Icon(Icons.feedback,
                       color: Color.fromARGB(255, 230, 169, 0)),
                 ),
@@ -326,7 +402,8 @@ class _MainScreenState extends State<MainScreen>
                             : screenHeight *
                                 0.35, // Default height when no image
                         decoration: BoxDecoration(
-                          color: const Color(0xFFD9D9D9).withOpacity(0.3),
+                          color: const Color.fromARGB(255, 246, 246, 246)
+                              .withOpacity(0.3),
                           borderRadius: BorderRadius.circular(32),
                           boxShadow: [
                             BoxShadow(
@@ -384,11 +461,11 @@ class _MainScreenState extends State<MainScreen>
                     width: screenWidth * 0.95, // 95% of screen width
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: const Color.fromARGB(255, 215, 224, 210),
+                      color: Colors.white, // Mother box color set to white
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
+                          color: Colors.grey.withOpacity(0.5),
                           blurRadius: 12,
                           spreadRadius: 2,
                           offset: const Offset(0, 4),
@@ -402,7 +479,7 @@ class _MainScreenState extends State<MainScreen>
                           width: double.infinity,
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFF2F2F2),
+                            color: const Color.fromARGB(255, 255, 235, 14),
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(
                               color: const Color(0xFF388E3C),
@@ -420,17 +497,15 @@ class _MainScreenState extends State<MainScreen>
                                 ),
                               ),
                               const SizedBox(height: 8),
-                              _classified
-                                  ? Column(
-                                      children: [
-                                        for (var result in _results)
-                                          Text(
-                                            '${result['label']} - ${(result['accuracy'] * 100).toStringAsFixed(2)}%',
-                                            style: const TextStyle(
-                                              fontSize: 14,
-                                            ),
-                                          ),
-                                      ],
+                              _classified && _bestResult != null
+                                  ? Text(
+                                      _bestResult!['label'],
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors
+                                            .black, // Set text color to black
+                                      ),
                                     )
                                   : const Text(
                                       'No result yet.',
@@ -445,44 +520,49 @@ class _MainScreenState extends State<MainScreen>
                         const SizedBox(height: 10), // Reduced space
                         if (_selectedImage == null) ...[
                           ElevatedButton.icon(
-                            onPressed: () => _pickImage(ImageSource.camera),
-                            icon:
-                                Image.asset('assets/minicamera.png', width: 30),
-                            label: const Text('Start Camera'),
+                            onPressed: _modelsLoaded
+                                ? () => _pickImage(ImageSource.camera)
+                                : null,
+                            icon: const Icon(Icons.camera_alt,
+                                color: Colors.white),
+                            label: const Text(
+                              'Start Camera',
+                              style: TextStyle(color: Colors.white),
+                            ),
                             style: ElevatedButton.styleFrom(
                               minimumSize:
                                   Size(screenWidth * 0.7, 50), // Adjusted width
-                              backgroundColor:
-                                  const Color.fromARGB(255, 215, 224, 210),
+                              backgroundColor: Colors
+                                  .black, // Buttons background color set to black
                               elevation: 5,
                               shadowColor: Colors.black.withOpacity(0.1),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(16),
-                                side: const BorderSide(
-                                  color: Color(0xFF388E3C),
-                                  width: 1,
-                                ),
+                                // Removed border color
                               ),
                             ),
                           ),
                           const SizedBox(height: 10),
                           ElevatedButton.icon(
-                            onPressed: () => _pickImage(ImageSource.gallery),
-                            icon: Image.asset('assets/miniupload.png'),
-                            label: const Text('Upload Picture'),
+                            onPressed: _modelsLoaded
+                                ? () => _pickImage(ImageSource.gallery)
+                                : null,
+                            icon: const Icon(Icons.photo_library,
+                                color: Colors.white),
+                            label: const Text(
+                              'Upload Picture',
+                              style: TextStyle(color: Colors.white),
+                            ),
                             style: ElevatedButton.styleFrom(
                               minimumSize:
                                   Size(screenWidth * 0.7, 50), // Adjusted width
-                              backgroundColor:
-                                  const Color.fromARGB(255, 215, 224, 210),
+                              backgroundColor: Colors
+                                  .black, // Buttons background color set to black
                               elevation: 5,
                               shadowColor: Colors.black.withOpacity(0.1),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(16),
-                                side: const BorderSide(
-                                  color: Color(0xFF388E3C),
-                                  width: 1,
-                                ),
+                                // Removed border color
                               ),
                             ),
                           ),
@@ -497,16 +577,19 @@ class _MainScreenState extends State<MainScreen>
                           style: ElevatedButton.styleFrom(
                             fixedSize:
                                 Size(screenWidth * 0.8, 50), // Adjusted width
-                            backgroundColor: const Color(0xFF388E3C),
+                            backgroundColor: const Color(
+                                0xFF388E3C), // Same as previous border color
                             textStyle: const TextStyle(
                               color: Colors.white,
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
                             elevation: 10,
-                            shadowColor: Colors.black.withOpacity(0.3),
+                            shadowColor: const Color.fromARGB(255, 2, 97, 18)
+                                .withOpacity(0.3),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20),
+                              // Removed border color
                             ),
                           ),
                           child: Text(
