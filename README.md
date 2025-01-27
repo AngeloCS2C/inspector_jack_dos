@@ -26,3 +26,5 @@ History Page
 Feedback Page (currently not fully functional; will update soon).
 Notes on This Version:
 This version ignores R8 optimizations due to dependency compatibility issues. As a result, the app is functional but not ready for deployemnt to the Play Store at this time. 
+
+NOTE !!!! SOURCE CODE IS NOT BEEN UPDATED YET : THAT PATCH INCLUDES ONLINE REVIEWS USING FIREBASE AND NEW UI DESIGN 
